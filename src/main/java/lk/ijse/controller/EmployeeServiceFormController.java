@@ -121,7 +121,7 @@ public class EmployeeServiceFormController {
                 try {
                     loadEmployeeDetails(txtEmployeephone.getText());
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to load employee details.");
                 }
             }
         });
@@ -145,10 +145,8 @@ public class EmployeeServiceFormController {
 
             List<String> serviceIds = serviceBO.getServiceIds();
             cmbServiceID.getItems().setAll(serviceIds);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+        } catch (SQLException | ClassNotFoundException e) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to load combo box data.");
         }
     }
 
@@ -163,53 +161,54 @@ public class EmployeeServiceFormController {
     }
 
     private void addButtonToTable() {
-        Callback<TableColumn<EmployeeServiceCart, Void>, TableCell<EmployeeServiceCart, Void>> cellFactory = new Callback<>() {
-            @Override
-            public TableCell<EmployeeServiceCart, Void> call(final TableColumn<EmployeeServiceCart, Void> param) {
-                final TableCell<EmployeeServiceCart, Void> cell = new TableCell<>() {
-                    private final Button btn = new Button("Remove");
+        Callback<TableColumn<EmployeeServiceCart, Void>, TableCell<EmployeeServiceCart, Void>> cellFactory = param -> {
+            final TableCell<EmployeeServiceCart, Void> cell = new TableCell<>() {
+                private final Button btn = new Button("Remove");
 
-                    {
-                        btn.getStyleClass().add("remove-button");
-                        btn.setCursor(Cursor.HAND);
-                        setAlignment(Pos.CENTER);
+                {
+                    btn.getStyleClass().add("remove-button");
+                    btn.setCursor(Cursor.HAND);
+                    setAlignment(Pos.CENTER);
 
-                        btn.setOnAction((ActionEvent event) -> {
-                            EmployeeServiceCart data = getTableView().getItems().get(getIndex());
-                            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure you want to remove this item?", ButtonType.YES, ButtonType.NO);
-                            alert.showAndWait();
+                    btn.setOnAction((ActionEvent event) -> {
+                        EmployeeServiceCart data = getTableView().getItems().get(getIndex());
+                        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure you want to remove this item?", ButtonType.YES, ButtonType.NO);
+                        alert.showAndWait();
 
-                            if (alert.getResult() == ButtonType.YES) {
-                                employeeServiceList.remove(data);
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void updateItem(Void item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (empty) {
-                            setGraphic(null);
-                        } else {
-                            setGraphic(btn);
+                        if (alert.getResult() == ButtonType.YES) {
+                            employeeServiceList.remove(data);
                         }
+                    });
+                }
+
+                @Override
+                public void updateItem(Void item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty) {
+                        setGraphic(null);
+                    } else {
+                        setGraphic(btn);
                     }
-                };
-                return cell;
-            }
+                }
+            };
+            return cell;
         };
 
         colAction.setCellFactory(cellFactory);
     }
 
-    private  void validateFields(){
-        if (cmbEmployeeId.getValue() == null || cmbServiceID.getValue() == null || cmbServiceID.getValue() == null ||  txtHoursAlocated.getText() == null ) {
+    private boolean validateFields() {
+        if (cmbEmployeeId.getValue() == null || cmbServiceID.getValue() == null || txtHoursAlocated.getText().isEmpty()) {
             showAlert(Alert.AlertType.ERROR, "Validation Error", "All fields are required.");
+            return false;
         }
+        return true;
     }
+
     @FXML
     void btnAddToCartOnAction(ActionEvent event) {
-        validateFields();
+        if (!validateFields()) return;
+
         String employeeID = cmbEmployeeId.getValue();
         String serviceID = cmbServiceID.getValue();
         LocalDate serviceDate = datepickerserviceDate.getValue();
@@ -264,10 +263,8 @@ public class EmployeeServiceFormController {
                 lableFristName.setText("Not found");
                 lableLastName.setText("Not found");
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+        } catch (SQLException | ClassNotFoundException e) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to load employee details.");
         }
     }
 
@@ -275,62 +272,32 @@ public class EmployeeServiceFormController {
         try {
             ServiceDTO service = serviceBO.getServiceById(serviceId);
             if (service != null) {
-                lableServiceName.setText(service.getServiceID());
-                System.out.println(service.getName());
+                lableServiceName.setText(service.getName());
                 lableServicePrice.setText(String.format("%.2f", service.getPrice()));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();  // Consider a more user-friendly error handling
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+        } catch (SQLException | ClassNotFoundException e) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to load service details.");
         }
     }
 
     private void clearForm() {
         cmbServiceID.setValue(null);
-        datepickerserviceDate.setValue(null);
+        datepickerserviceDate.setValue(LocalDate.now());
         lableFristName.setText("");
         lableLastName.setText("");
         lableServiceName.setText("");
         lableServicePrice.setText("");
         txtEmployeephone.clear();
-        txtHoursAlocated.setText("");
+        txtHoursAlocated.clear();
     }
 
     @FXML
-    void btnPlaceServiceInfoOnAction(ActionEvent event) throws SQLException {
-        String employeeID = cmbEmployeeId.getValue();
-        String serviceID = cmbServiceID.getValue();
-        LocalDate serviceDate = datepickerserviceDate.getValue();
-        String servicePriceText = lableServicePrice.getText();
-        String hoursAllocatedText = txtHoursAlocated.getText();
-
-        // Validate all fields
-        if (employeeID == null || serviceID == null || serviceDate == null || servicePriceText == null || servicePriceText.isEmpty() || hoursAllocatedText == null || hoursAllocatedText.isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Validation Error", "All fields are required.");
-            return;
-        }
-
-        double servicePrice;
-        int hoursAllocated;
-        try {
-            servicePrice = Double.parseDouble(servicePriceText);
-            hoursAllocated = Integer.parseInt(hoursAllocatedText);
-        } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Validation Error", "Service Price and Hours Allocated must be valid numbers.");
-            return;
-        }
-
-        double totalServicePrice = servicePrice * hoursAllocated;
-        if (totalServicePrice <= 0) {
-            showAlert(Alert.AlertType.ERROR, "Validation Error", "Total Service Price must be greater than zero.");
-            return;
-        }
+    void btnPlaceServiceInfoOnAction(ActionEvent event) {
+        if (!validateFields()) return;
 
         List<EmployeeServiceDTO> empslist = new ArrayList<>();
-
         for (EmployeeServiceCart item : tableordercart.getItems()) {
-            EmployeeServiceDTO employeeService1 = new EmployeeServiceDTO(
+            EmployeeServiceDTO employeeService = new EmployeeServiceDTO(
                     item.getEmployeeID().getValue(),
                     item.getServiceID().getValue(),
                     item.getServiceDate().getValue(),
@@ -338,18 +305,21 @@ public class EmployeeServiceFormController {
                     item.getTotalServicePrice().getValue(),
                     item.getHoursAllocated().getValue()
             );
-            empslist.add(employeeService1);
+            empslist.add(employeeService);
         }
-        System.out.println(empslist);
 
         PlaceEmployeeServiceDTO placeEmployeeService = new PlaceEmployeeServiceDTO(empslist);
-        boolean success = employyeServiceBO.placeEmployeeService(placeEmployeeService);
-        if (success) {
-            showAlert(Alert.AlertType.INFORMATION, "Success", "Employee Service Information placed successfully.");
-            clearForm();
-            employeeServiceList.clear();
-        } else {
-            showAlert(Alert.AlertType.ERROR, "Failed", "Failed to place Employee Service Information.");
+        try {
+            boolean success = employyeServiceBO.placeEmployeeService(placeEmployeeService);
+            if (success) {
+                showAlert(Alert.AlertType.INFORMATION, "Success", "Employee Service Information placed successfully.");
+                clearForm();
+                employeeServiceList.clear();
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Failed", "Failed to place Employee Service Information.");
+            }
+        } catch (SQLException e) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to place Employee Service Information.");
         }
     }
 
@@ -366,7 +336,6 @@ public class EmployeeServiceFormController {
 
     private void transferFocusAndOpen(Control currentControl) {
         Control nextControl = null;
-        System.out.println(currentControl.getId());
         switch (currentControl.getId()) {
             case "txtEmployeephone":
                 nextControl = cmbServiceID;
@@ -390,8 +359,6 @@ public class EmployeeServiceFormController {
                     nextCombo.requestFocus();
                     nextCombo.show();
                 });
-            } else if (nextControl instanceof Button) {
-                Platform.runLater(nextControl::requestFocus);
             } else {
                 Platform.runLater(nextControl::requestFocus);
             }
@@ -400,11 +367,12 @@ public class EmployeeServiceFormController {
 
     @FXML
     public void TxtEmpPhoneOnKeyReleased(KeyEvent keyEvent) {
-        Regex.setTextColor(TextField.PHONE1,txtEmployeephone);
+        Regex.setTextColor(TextField.PHONE1, txtEmployeephone);
     }
+
     @FXML
     public void TxtHoursOnKeyReleased(KeyEvent keyEvent) {
-        Regex.setTextColor(TextField.Hours,txtHoursAlocated);
+        Regex.setTextColor(TextField.Hours, txtHoursAlocated);
     }
 
     public void PrintBillOnAction(ActionEvent actionEvent) throws JRException, SQLException {
@@ -414,8 +382,7 @@ public class EmployeeServiceFormController {
         Map<String, Object> data = new HashMap<>();
         data.put("EmployeeID", cmbEmployeeId.getValue());
 
-
         JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, data, DBConnection.getInstance().getConnection());
-        JasperViewer.viewReport(jasperPrint,false);
+        JasperViewer.viewReport(jasperPrint, false);
     }
 }

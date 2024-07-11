@@ -52,8 +52,22 @@ public class EmployeeBOImpl implements EmployeeBO {
     @Override
     public EmployeeDTO searchEmployeeByPhone(String phone) throws SQLException, ClassNotFoundException {
         Employee employee = employeeDAO.searchByPhone(phone);
-        return new EmployeeDTO(employee.getEmployeeID(), employee.getFirstName(), employee.getLastName(), employee.getPosition(), employee.getEmail(), employee.getPhone(), employee.getHireDate(), employee.getSalary(), employee.getDepartment());
+        if (employee == null) {
+            return null;
+        }
+        return new EmployeeDTO(
+                employee.getEmployeeID(),
+                employee.getFirstName(),
+                employee.getLastName(),
+                employee.getPosition(),
+                employee.getEmail(),
+                employee.getPhone(),
+                employee.getHireDate(),
+                employee.getSalary(),
+                employee.getDepartment()
+        );
     }
+
 
     @Override
     public ObservableList<EmployeeDTO> getAllEmployee() throws SQLException, ClassNotFoundException {
