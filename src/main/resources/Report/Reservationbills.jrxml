@@ -155,10 +155,6 @@ WHERE
 				</textElement>
 				<text><![CDATA[070 274 7123]]></text>
 			</staticText>
-			<image>
-				<reportElement x="20" y="0" width="82" height="74" uuid="77556e43-f48a-4274-a183-d67450b322e2"/>
-				<imageExpression><![CDATA["C:/Users/dilsh/Desktop/SUN & MOON RESORT PROJECT/S_Moon_Resort1/Sun-MoonResort_Project/src/main/resources/images/login/269843567_2546264738851116_5982610668751983783_n-removebg-preview.png"]]></imageExpression>
-			</image>
 		</band>
 	</title>
 	<pageHeader>

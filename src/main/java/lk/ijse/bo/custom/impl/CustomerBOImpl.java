@@ -10,7 +10,7 @@ import lk.ijse.entity.Customer;
 import java.sql.SQLException;
 import java.util.List;
 
-public class CustomerBOImpl implements CustomerBO {
+public class  CustomerBOImpl implements CustomerBO {
 
     CustomerDAO customerDAO = (CustomerDAO) DAOFactory.getDaoFactory().getDAO(DAOFactory.DAOTypes.CUSTOMER);
 
