@@ -136,7 +136,7 @@ We welcome contributions! Here's how you can help:
 <div align="center">
 
 [![GitHub](https://img.shields.io/badge/GitHub-ChamathDilshanC-black?style=for-the-badge&logo=github)](https://github.com/ChamathDilshanC)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Chamath_Dilshan-blue?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/chamath-dilshan)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Chamath_Dilshan-blue?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/chamathdilsahnc/)
 
 </div>
 
