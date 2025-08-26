@@ -21,7 +21,6 @@ A robust implementation of the layered architecture pattern for standalone Java 
 |---------|------------|
 | 🏗️ **Three-tier Architecture** | Clear separation between service, business, and data layers |
 | 📦 **Modular Design** | Discrete Maven modules for better maintenance |
-| 🔐 **JPA/Hibernate** | Type-safe database operations with connection pooling |
 | 🧪 **Comprehensive Testing** | Unit and integration tests with JUnit 5 |
 | 🛠️ **Build Automation** | Maven-based build lifecycle management |
 
